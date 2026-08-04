@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الأسعار | Loopra</title>
+<style>
+:root{--ink:#1f2430;--muted:#5b6472;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;color:var(--ink);
+background:linear-gradient(135deg,#eef2ff 0%,#f7f0ff 40%,#fdeef6 70%,#eef6ff 100%);
+background-attachment:fixed;line-height:1.8;-webkit-font-smoothing:antialiased;min-height:100vh}
+.wrap{max-width:1080px;margin:0 auto;padding:38px 22px 90px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:44px}
+.brand{font-weight:800;letter-spacing:.22em;font-size:20px;color:var(--ink);text-decoration:none}
+.back{font-size:14px;color:var(--muted);text-decoration:none}
+.head{text-align:center;margin-bottom:40px}
+.head h1{font-size:34px;font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
+.head p{color:var(--muted);font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;align-items:stretch}
+.card{background:rgba(255,255,255,.62);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+border:1px solid rgba(255,255,255,.7);border-radius:24px;padding:30px 24px;display:flex;flex-direction:column;
+box-shadow:0 24px 60px -30px rgba(40,50,90,.28)}
+.card.pop{border:1.5px solid #6366f1;box-shadow:0 26px 66px -26px rgba(99,102,241,.45)}
+.tier{font-size:15px;color:var(--muted);margin-bottom:6px}
+.name{font-size:22px;font-weight:750;margin-bottom:14px}
+.price{font-size:34px;font-weight:800;letter-spacing:-.02em}
+.price small{font-size:15px;font-weight:600;color:var(--muted)}
+.free{font-size:30px;font-weight:800;color:#059669}
+.line{height:1px;background:rgba(20,24,40,.08);margin:18px 0}
+.feat{list-style:none;display:flex;flex-direction:column;gap:9px;font-size:14.5px;color:#333a48;flex:1}
+.feat li{display:flex;gap:8px;align-items:flex-start}
+.feat li::before{content:"✓";color:#6366f1;font-weight:800}
+.badge{display:inline-block;background:#eef0ff;color:#4f46e5;font-size:12px;font-weight:700;
+padding:3px 10px;border-radius:999px;margin-bottom:12px;width:fit-content}
+.note{text-align:center;color:var(--muted);font-size:13.5px;margin-top:30px;line-height:2}
+.foot{text-align:center;color:var(--muted);font-size:13px;margin-top:36px}
+.foot a{color:#6366f1;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top">
+<a class="brand" href="/">LOOPRA</a>
+<a class="back" href="/">العودة للرئيسية</a>
+</div>
+
+<div class="head">
+<h1>خطة تناسب فريقك</h1>
+<p>ابدأ مجاناً، وارتقِ عندما يكبر فريقك. الأسعار للفريق كامل، بلا تعقيد.</p>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="tier">للفرق الصغيرة</div>
+    <div class="name">مجاني</div>
+    <div class="free">0 ريال</div>
+    <div class="line"></div>
+    <ul class="feat">
+      <li>حتى 7 مستخدمين</li>
+      <li>محادثات ومجموعات منظمة</li>
+      <li>إنشاء المهام ومتابعتها</li>
+      <li>تنبيهات فورية</li>
+    </ul>
+  </div>
+
+  <div class="card pop">
+    <span class="badge">الأكثر ملاءمة</span>
+    <div class="tier">للفرق النامية</div>
+    <div class="name">خطة 25</div>
+    <div class="price">125 <small>ريال / شهرياً</small></div>
+    <div class="line"></div>
+    <ul class="feat">
+      <li>حتى 25 مستخدماً</li>
+      <li>كل مزايا الخطة المجانية</li>
+      <li>أرشفة كاملة للمحادثات</li>
+      <li>صلاحيات وأدوار</li>
+      <li>مساحة ملفات أكبر</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="tier">للفرق الأكبر</div>
+    <div class="name">خطة 50</div>
+    <div class="price">200 <small>ريال / شهرياً</small></div>
+    <div class="line"></div>
+    <ul class="feat">
+      <li>حتى 50 مستخدماً</li>
+      <li>كل مزايا خطة 25</li>
+      <li>أولوية في الدعم</li>
+      <li>تقارير أوسع</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="tier">للمنشآت الكبيرة</div>
+    <div class="name">مخصّص</div>
+    <div class="price" style="font-size:26px">تواصل معنا</div>
+    <div class="line"></div>
+    <ul class="feat">
+      <li>أكثر من 50 مستخدماً</li>
+      <li>عرض سعر يناسب حجمك</li>
+      <li>إعداد ودعم مخصّص</li>
+    </ul>
+  </div>
+</div>
+
+<div class="note">
+جميع الأسعار غير شاملة ضريبة القيمة المضافة. تُصدر فاتورة ضريبية نظامية لكل اشتراك أعمال.<br>
+الدفع عبر Apple Pay ومدى والبطاقات. خيار الاشتراك السنوي بخصم متاح قريباً.
+</div>
+
+<div class="foot">
+أسئلة عن الأسعار؟ <a href="mailto:founder@loopra.dev">founder@loopra.dev</a>
+</div>
+</div>
+</body>
+</html>
