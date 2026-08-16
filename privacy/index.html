@@ -1,39 +1,44 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>سياسة الخصوصية | Loopra</title>
+<meta name="theme-color" content="#F2F2F1">
+<link rel="icon" href="/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
-:root{--ink:#1f2430;--muted:#5b6472;--line:rgba(20,24,40,.08);}
+@font-face{font-family:'Plex Arabic';src:url('/fonts/IBMPlexSansArabic-Regular.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:'Plex Arabic';src:url('/fonts/IBMPlexSansArabic-Medium.ttf') format('truetype');font-weight:500;font-display:swap}
+@font-face{font-family:'Plex Arabic';src:url('/fonts/IBMPlexSansArabic-SemiBold.ttf') format('truetype');font-weight:600;font-display:swap}
+:root{--canvas:#F2F2F1;--ink:#0B0B0C;--secondary:#4B4B49;--tertiary:#8A8A87;--hairline:rgba(11,11,12,.08)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;color:var(--ink);
-background:linear-gradient(135deg,#eef2ff 0%,#f7f0ff 40%,#fdeef6 70%,#eef6ff 100%);
-background-attachment:fixed;line-height:1.9;-webkit-font-smoothing:antialiased}
-.wrap{max-width:760px;margin:0 auto;padding:40px 22px 80px}
-.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px}
-.brand{font-weight:800;letter-spacing:.22em;font-size:20px;color:var(--ink);text-decoration:none}
-.back{font-size:14px;color:var(--muted);text-decoration:none}
-.card{background:rgba(255,255,255,.62);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
-border:1px solid rgba(255,255,255,.7);border-radius:26px;padding:40px 34px;
-box-shadow:0 24px 60px -28px rgba(40,50,90,.28)}
-h1{font-size:30px;font-weight:800;margin-bottom:6px;letter-spacing:-.01em}
-.date{color:var(--muted);font-size:14px;margin-bottom:26px}
-h2{font-size:20px;font-weight:750;margin:30px 0 10px}
-p{color:#333a48;margin:10px 0}
-ul{margin:10px 26px}
-li{margin:7px 0;color:#333a48}
-.foot{text-align:center;color:var(--muted);font-size:13px;margin-top:40px}
-a{color:#4f46e5}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--canvas);color:var(--ink);font-family:'Plex Arabic',-apple-system,system-ui,sans-serif;line-height:1.9;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+::selection{background:rgba(11,11,12,.09)}
+.lp-header{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--canvas) 82%,transparent);backdrop-filter:saturate(150%) blur(14px);-webkit-backdrop-filter:saturate(150%) blur(14px);border-bottom:1px solid var(--hairline)}
+.lp-header .in{max-width:760px;margin:0 auto;padding:0 22px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.lp-logo{height:20px;width:auto;display:block}
+.lp-back{font-size:14px;color:var(--secondary);text-decoration:none;font-weight:500;transition:color .18s}
+.lp-back:hover{color:var(--ink)}
+main{max-width:760px;margin:0 auto;padding:clamp(36px,6vw,64px) 22px 72px}
+h1{font-size:clamp(26px,5vw,34px);font-weight:600;line-height:1.25;letter-spacing:0;text-wrap:balance;margin-bottom:8px}
+.date{color:var(--tertiary);font-size:14px;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--hairline)}
+h2{font-size:19px;font-weight:600;margin:34px 0 6px;letter-spacing:0}
+p{color:var(--secondary);font-size:16px;margin:8px 0;text-wrap:pretty}
+p a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+ul{margin:10px 0;padding-inline-start:22px}
+li{color:var(--secondary);margin:6px 0}
+.foot{max-width:760px;margin:0 auto;padding:22px;border-top:1px solid var(--hairline);color:var(--tertiary);font-size:13px;text-align:center}
 </style>
 </head>
 <body>
-<div class="wrap">
-<div class="top">
-<a class="brand" href="/">LOOPRA</a>
-<a class="back" href="/">العودة للرئيسية</a>
-</div>
-<div class="card">
+<header class="lp-header"><div class="in">
+<a href="/" aria-label="Loopra"><img class="lp-logo" src="/logos/loopra-wordmark-black.svg" alt="لوبرا"></a>
+<a class="lp-back" href="/">العودة للرئيسية</a>
+</div></header>
+<main>
 <h1>سياسة الخصوصية — تطبيق Loopra</h1>
 <p class="date">آخر تحديث: 2 أغسطس 2026</p>
 <p>تصدر هذه السياسة عن مؤسسة عثمان عبدالله نياز للخدمات العامة (ونشير إليها بـ &quot;نحن&quot;)، مالكة تطبيق Loopra (ونشير إليه بـ &quot;التطبيق&quot;). نبيّن فيها البيانات التي نجمعها منك، وكيف نستخدمها ونحميها، وما لك من حقوق تجاهها. وباستخدامك التطبيق، فأنت توافق على ما ورد هنا.</p>
@@ -77,8 +82,7 @@ a{color:#4f46e5}
 <p>لأي استفسار عن خصوصيتك أو لممارسة حقوقك:</p>
 <p>البريد الإلكتروني: <a href="mailto:founder@loopra.dev">founder@loopra.dev</a></p>
 <p>الجهة: مؤسسة عثمان عبدالله نياز للخدمات العامة، جدة، المملكة العربية السعودية.</p>
-</div>
+</main>
 <div class="foot">© 2026 Loopra · مؤسسة عثمان عبدالله نياز للخدمات العامة</div>
-</div>
 </body>
 </html>
