@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<title>كلمات — عرض كلمات الأغاني</title>
+<meta name="description" content="اكتب اسم الأغنية أو الصق رابط يوتيوب، واعرض الكلمات بخط كبير مع سكرول تلقائي وأنت تسوق." />
+<meta name="theme-color" content="#0a0a0b" />
+
+<!-- PWA / Add to Home Screen -->
+<link rel="manifest" href="/lyrics/manifest.json" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="كلمات" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="icon" href="/favicon-512.png" sizes="512x512" />
+
+<style>
+  @font-face{
+    font-family:"Plex Arabic";
+    src:url("/fonts/IBMPlexSansArabic-Regular.ttf") format("truetype");
+    font-weight:400; font-display:swap;
+  }
+  @font-face{
+    font-family:"Plex Arabic";
+    src:url("/fonts/IBMPlexSansArabic-Medium.ttf") format("truetype");
+    font-weight:500; font-display:swap;
+  }
+  @font-face{
+    font-family:"Plex Arabic";
+    src:url("/fonts/IBMPlexSansArabic-SemiBold.ttf") format("truetype");
+    font-weight:600; font-display:swap;
+  }
+
+  :root{
+    --bg:#0a0a0b;
+    --surface:#141416;
+    --surface-2:#1d1d20;
+    --line:#2a2a2e;
+    --ink:#f4f4f5;
+    --ink-dim:#a1a1aa;
+    --ink-faint:#5c5c63;
+    --accent:#f4f4f5;
+    --active:#ffffff;
+    --radius:22px;
+    --safe-t:env(safe-area-inset-top,0px);
+    --safe-b:env(safe-area-inset-bottom,0px);
+    --lyric-size:34px;
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:"Plex Arabic",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+    overscroll-behavior:none;
+  }
+
+  .app{
+    height:100dvh;
+    display:flex;
+    flex-direction:column;
+    padding-top:var(--safe-t);
+    padding-bottom:var(--safe-b);
+  }
+
+  /* ---------- Screens ---------- */
+  .screen{flex:1;min-height:0;display:none;flex-direction:column;}
+  .screen.active{display:flex;}
+
+  /* ---------- Search screen ---------- */
+  #searchScreen{
+    justify-content:center;
+    padding:24px clamp(18px,6vw,44px);
+    overflow-y:auto;
+  }
+  .brand{
+    display:flex;align-items:center;gap:12px;
+    justify-content:center;margin-bottom:28px;
+  }
+  .brand .dot{
+    width:12px;height:12px;border-radius:50%;
+    background:var(--ink);
+    box-shadow:0 0 24px 4px rgba(244,244,245,.35);
+  }
+  .brand h1{font-size:20px;font-weight:600;margin:0;letter-spacing:-.01em;}
+
+  .hero{
+    text-align:center;margin-bottom:26px;
+  }
+  .hero p{color:var(--ink-dim);font-size:15px;line-height:1.7;margin:0 auto;max-width:340px;}
+
+  .segmented{
+    display:flex;background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;padding:4px;margin:0 auto 16px;max-width:360px;
+  }
+  .segmented button{
+    flex:1;border:0;background:transparent;color:var(--ink-dim);
+    font-family:inherit;font-size:14px;font-weight:500;padding:10px 8px;
+    border-radius:999px;cursor:pointer;transition:.2s;
+  }
+  .segmented button.on{background:var(--surface-2);color:var(--ink);}
+
+  .field{
+    display:flex;flex-direction:column;gap:10px;max-width:420px;margin:0 auto;width:100%;
+  }
+  .input{
+    width:100%;background:var(--surface);border:1px solid var(--line);
+    color:var(--ink);font-family:inherit;font-size:17px;
+    padding:16px 18px;border-radius:16px;outline:none;transition:.2s;
+  }
+  .input::placeholder{color:var(--ink-faint);}
+  .input:focus{border-color:#40404a;background:var(--surface-2);}
+
+  .row2{display:flex;gap:10px;}
+  .row2 .input{flex:1;}
+
+  .btn-primary{
+    width:100%;border:0;border-radius:16px;
+    background:var(--ink);color:#0a0a0b;
+    font-family:inherit;font-weight:600;font-size:17px;
+    padding:16px;cursor:pointer;transition:transform .12s ease,opacity .2s;
+    display:flex;align-items:center;justify-content:center;gap:9px;
+  }
+  .btn-primary:active{transform:scale(.98);}
+  .btn-primary[disabled]{opacity:.55;pointer-events:none;}
+
+  .examples{
+    display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+    margin:20px auto 0;max-width:420px;
+  }
+  .chip{
+    background:var(--surface);border:1px solid var(--line);color:var(--ink-dim);
+    font-family:inherit;font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;transition:.2s;
+  }
+  .chip:active{background:var(--surface-2);}
+
+  .hint{
+    text-align:center;color:var(--ink-faint);font-size:12.5px;line-height:1.6;
+    margin:22px auto 0;max-width:380px;
+  }
+
+  /* ---------- Results screen ---------- */
+  .topbar{
+    display:flex;align-items:center;gap:12px;
+    padding:14px clamp(16px,5vw,32px);
+    border-bottom:1px solid var(--line);
+    flex-shrink:0;
+  }
+  .iconbtn{
+    width:42px;height:42px;flex-shrink:0;border-radius:50%;
+    border:1px solid var(--line);background:var(--surface);color:var(--ink);
+    font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:.15s;
+  }
+  .iconbtn:active{background:var(--surface-2);}
+  .topbar .title{font-size:16px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+  .topbar .title small{display:block;color:var(--ink-dim);font-weight:400;font-size:13px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  .list{flex:1;min-height:0;overflow-y:auto;padding:10px clamp(12px,4vw,28px) 30px;-webkit-overflow-scrolling:touch;}
+  .result{
+    display:flex;align-items:center;gap:14px;width:100%;text-align:start;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:16px;padding:15px 16px;margin-bottom:10px;cursor:pointer;
+    transition:.15s;color:var(--ink);font-family:inherit;
+  }
+  .result:active{background:var(--surface-2);}
+  .result .meta{min-width:0;flex:1;}
+  .result .track{font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .result .artist{font-size:13.5px;color:var(--ink-dim);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .result .badge{
+    flex-shrink:0;font-size:11px;font-weight:500;padding:5px 9px;border-radius:8px;
+    background:var(--surface-2);color:var(--ink-dim);border:1px solid var(--line);
+  }
+  .result .badge.synced{color:#0a0a0b;background:var(--ink);border-color:var(--ink);}
+
+  .state{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:16px;padding:40px;text-align:center;color:var(--ink-dim);
+  }
+  .spinner{
+    width:34px;height:34px;border-radius:50%;
+    border:3px solid var(--line);border-top-color:var(--ink);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .state h3{color:var(--ink);font-size:17px;font-weight:600;margin:0;}
+  .state p{margin:0;font-size:14px;line-height:1.7;max-width:300px;}
+  .state .btn-primary{max-width:240px;margin-top:6px;}
+
+  /* ---------- Lyrics screen ---------- */
+  #lyricsScreen{position:relative;}
+  .lyrics-head{
+    display:flex;align-items:center;gap:12px;
+    padding:12px clamp(14px,4vw,28px);
+    flex-shrink:0;
+    background:linear-gradient(180deg,var(--bg) 60%,transparent);
+    z-index:5;
+  }
+  .lyrics-head .title{flex:1;min-width:0;}
+  .lyrics-head .title .t{font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lyrics-head .title .a{font-size:12.5px;color:var(--ink-dim);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  .lyrics-wrap{
+    flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:34vh clamp(20px,7vw,60px) 40vh;
+    scroll-behavior:smooth;
+    text-align:center;
+  }
+  .lyrics-wrap.plain{padding:20px clamp(20px,7vw,60px) 30vh;}
+
+  .line{
+    font-size:var(--lyric-size);
+    line-height:1.5;font-weight:600;
+    color:var(--ink-faint);
+    margin:0 0 .55em;
+    transition:color .35s ease,opacity .35s ease,transform .35s ease;
+    cursor:pointer;
+    letter-spacing:-.01em;
+  }
+  .line.plainline{color:var(--ink);opacity:.92;cursor:default;font-weight:500;}
+  .line.past{color:var(--ink-faint);opacity:.5;}
+  .line.active{color:var(--active);transform:scale(1.02);}
+  .line.upcoming{color:var(--ink-dim);opacity:.75;}
+
+  /* control bar */
+  .controls{
+    flex-shrink:0;
+    display:flex;align-items:center;gap:10px;justify-content:center;
+    padding:12px clamp(14px,4vw,28px) calc(14px + var(--safe-b));
+    background:linear-gradient(0deg,var(--bg) 55%,transparent);
+    z-index:5;
+  }
+  .ctl{
+    height:48px;min-width:48px;padding:0 16px;border-radius:999px;
+    border:1px solid var(--line);background:var(--surface);color:var(--ink);
+    font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:7px;transition:.15s;
+  }
+  .ctl:active{background:var(--surface-2);}
+  .ctl.play{
+    background:var(--ink);color:#0a0a0b;border-color:var(--ink);
+    min-width:64px;font-weight:600;
+  }
+  .ctl.wide{flex:0 0 auto;}
+  .ctl small{font-size:11px;color:var(--ink-dim);}
+  .ctl.play small{color:rgba(10,10,11,.6);}
+
+  .toast{
+    position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(96px + var(--safe-b));
+    background:var(--surface-2);border:1px solid var(--line);color:var(--ink);
+    padding:11px 18px;border-radius:999px;font-size:13.5px;font-weight:500;
+    opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:20;
+    white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+
+  .sync-tip{
+    text-align:center;color:var(--ink-faint);font-size:12px;
+    padding:0 20px 8px;flex-shrink:0;
+  }
+
+  /* size popover */
+  .sizebar{
+    position:absolute;top:64px;inset-inline-end:16px;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:16px;
+    padding:8px;display:none;gap:6px;z-index:15;box-shadow:0 12px 40px rgba(0,0,0,.5);
+  }
+  .sizebar.show{display:flex;}
+  .sizebar button{
+    width:44px;height:44px;border-radius:12px;border:1px solid var(--line);
+    background:var(--surface);color:var(--ink);font-family:inherit;cursor:pointer;
+  }
+  .sizebar button:active{background:var(--surface-2);}
+
+  .footer-note{
+    text-align:center;font-size:11px;color:var(--ink-faint);
+    padding:8px 20px calc(8px + var(--safe-b));flex-shrink:0;
+  }
+  a{color:var(--ink-dim);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ SEARCH ============ -->
+  <section id="searchScreen" class="screen active">
+    <div class="brand"><span class="dot"></span><h1>كلمات</h1></div>
+    <div class="hero">
+      <p>اكتب اسم الأغنية، أو الصق رابط يوتيوب — وتطلع لك الكلمات بخط كبير وأنت تسوق.</p>
+    </div>
+
+    <div class="segmented" id="modeSeg">
+      <button data-mode="name" class="on">اسم الأغنية</button>
+      <button data-mode="url">رابط يوتيوب</button>
+    </div>
+
+    <form class="field" id="searchForm" autocomplete="off">
+      <div id="nameFields" class="field" style="gap:10px;">
+        <input class="input" id="trackInput" placeholder="اسم الأغنية" inputmode="search" />
+        <input class="input" id="artistInput" placeholder="الفنان (اختياري)" inputmode="search" />
+      </div>
+      <div id="urlFields" class="field" style="display:none;gap:10px;">
+        <input class="input" id="urlInput" placeholder="الصق رابط أو عنوان الأغنية من يوتيوب" inputmode="url" />
+      </div>
+      <button class="btn-primary" type="submit" id="searchBtn">
+        <span>عرض الكلمات</span>
+      </button>
+    </form>
+
+    <div class="examples" id="examples">
+      <button class="chip" data-t="عبالي حبيبي" data-a="حسين الجسمي">عبالي حبيبي</button>
+      <button class="chip" data-t="Blinding Lights" data-a="The Weeknd">Blinding Lights</button>
+      <button class="chip" data-t="تخيل" data-a="محمد عبده">تخيّل</button>
+      <button class="chip" data-t="Snooze" data-a="SZA">Snooze</button>
+    </div>
+
+    <p class="hint">
+      💡 لو تبغاه بالسيارة: افتحه في المتصفح، ثم «إضافة إلى الشاشة الرئيسية» — يصير مثل تطبيق ويثبّت الشاشة صاحية.
+    </p>
+    <p class="footer-note">الكلمات من <a href="https://lrclib.net" target="_blank" rel="noopener">LRCLIB</a> · مجاني ومفتوح</p>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section id="resultsScreen" class="screen">
+    <div class="topbar">
+      <button class="iconbtn" id="backFromResults" aria-label="رجوع">→</button>
+      <div class="title" id="resultsTitle">النتائج</div>
+    </div>
+    <div id="resultsBody" class="list"></div>
+  </section>
+
+  <!-- ============ LYRICS ============ -->
+  <section id="lyricsScreen" class="screen">
+    <div class="lyrics-head">
+      <button class="iconbtn" id="backFromLyrics" aria-label="رجوع">→</button>
+      <div class="title">
+        <div class="t" id="lyricTitle">—</div>
+        <div class="a" id="lyricArtist">—</div>
+      </div>
+      <button class="iconbtn" id="sizeToggle" aria-label="حجم الخط">Aa</button>
+    </div>
+
+    <div class="sizebar" id="sizebar">
+      <button id="sizeDown" aria-label="أصغر">A−</button>
+      <button id="sizeUp" aria-label="أكبر">A+</button>
+    </div>
+
+    <div class="sync-tip" id="syncTip"></div>
+    <div class="lyrics-wrap" id="lyricsWrap"></div>
+
+    <div class="controls" id="controls"></div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- helpers ----------
+  var $ = function(s){return document.querySelector(s);};
+  var el = function(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;};
+  var API = "https://lrclib.net/api";
+
+  var screens = {
+    search: $("#searchScreen"),
+    results: $("#resultsScreen"),
+    lyrics: $("#lyricsScreen")
+  };
+  function show(name){
+    Object.keys(screens).forEach(function(k){screens[k].classList.toggle("active", k===name);});
+  }
+
+  var toastEl = $("#toast"), toastTimer;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){toastEl.classList.remove("show");}, 2200);
+  }
+
+  function isArabic(s){ return /[؀-ۿ]/.test(s||""); }
+
+  // ---------- mode toggle ----------
+  var mode = "name";
+  var seg = $("#modeSeg");
+  seg.addEventListener("click", function(e){
+    var b = e.target.closest("button[data-mode]"); if(!b) return;
+    mode = b.getAttribute("data-mode");
+    seg.querySelectorAll("button").forEach(function(x){x.classList.toggle("on", x===b);});
+    $("#nameFields").style.display = mode==="name" ? "flex" : "none";
+    $("#urlFields").style.display  = mode==="url"  ? "flex" : "none";
+    ($(mode==="name" ? "#trackInput" : "#urlInput")).focus();
+  });
+
+  // ---------- examples ----------
+  $("#examples").addEventListener("click", function(e){
+    var c = e.target.closest(".chip"); if(!c) return;
+    $("#trackInput").value = c.getAttribute("data-t");
+    $("#artistInput").value = c.getAttribute("data-a")||"";
+    mode="name"; seg.querySelector('[data-mode="name"]').click();
+    doSearch();
+  });
+
+  // ---------- parse a YouTube-ish title into {track, artist} ----------
+  function parseTitle(raw){
+    var s = (raw||"").trim();
+    // strip common noise
+    var noise = /\(.*?official.*?\)|\[.*?official.*?\]|\(.*?video.*?\)|\[.*?video.*?\]|\(.*?lyrics?.*?\)|\[.*?lyrics?.*?\]|\(.*?audio.*?\)|\[.*?audio.*?\]|\(.*?hd.*?\)|\(.*?4k.*?\)|official|lyrics?|video clip|videoclip|\bmv\b|كليب|رسمي|بالكلمات|كلمات|النسخة الأصلية|حصري(ا|اً)?|اوديو|أوديو/gi;
+    s = s.replace(noise, " ");
+    s = s.replace(/[|｜–—]/g, "-");
+    s = s.replace(/\s{2,}/g," ").trim().replace(/^-+|-+$/g,"").trim();
+    var artist="", track=s;
+    if(s.indexOf("-") > -1){
+      var parts = s.split("-");
+      artist = parts.shift().trim();
+      track = parts.join("-").trim();
+    }
+    // quotes around track: فنان "اسم الاغنية"
+    var q = s.match(/["“”«](.+?)["“”»]/);
+    if(q){ track = q[1].trim(); artist = s.replace(q[0],"").replace(/[-|].*/,"").trim(); }
+    track = track.replace(/["“”«»]/g,"").trim();
+    artist = artist.replace(/["“”«»]/g,"").trim();
+    if(!track) track = s;
+    return {track:track, artist:artist};
+  }
+
+  // extract video title from a youtube URL (best-effort, CORS may block → fallback)
+  function extractFromUrl(url){
+    return new Promise(function(resolve){
+      var idMatch = url.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([A-Za-z0-9_-]{6,})/);
+      // If it's not really a URL, treat the whole string as a title
+      if(!/^https?:\/\//i.test(url) && !idMatch){ resolve(parseTitle(url)); return; }
+      var endpoints = [
+        "https://noembed.com/embed?url=" + encodeURIComponent(url),
+        "https://www.youtube.com/oembed?format=json&url=" + encodeURIComponent(url)
+      ];
+      var i = 0;
+      (function tryNext(){
+        if(i >= endpoints.length){ resolve(parseTitle(url)); return; }
+        fetch(endpoints[i++], {mode:"cors"})
+          .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+          .then(function(j){
+            if(j && j.title){ resolve(parseTitle(j.title)); }
+            else throw 0;
+          })
+          .catch(function(){ tryNext(); });
+      })();
+    });
+  }
+
+  // ---------- search flow ----------
+  $("#searchForm").addEventListener("submit", function(e){ e.preventDefault(); doSearch(); });
+
+  function setBtnLoading(on){
+    var b = $("#searchBtn");
+    b.disabled = on;
+    b.querySelector("span").textContent = on ? "لحظة…" : "عرض الكلمات";
+  }
+
+  function doSearch(){
+    if(mode==="url"){
+      var url = $("#urlInput").value.trim();
+      if(!url){ toast("الصق الرابط أو عنوان الأغنية أول"); return; }
+      setBtnLoading(true);
+      extractFromUrl(url).then(function(parsed){
+        setBtnLoading(false);
+        if(!parsed.track){ toast("ما قدرت أطلع اسم الأغنية — اكتبه يدوي"); return; }
+        runSearch(parsed.track, parsed.artist);
+      });
+    } else {
+      var t = $("#trackInput").value.trim();
+      var a = $("#artistInput").value.trim();
+      if(!t){ toast("اكتب اسم الأغنية أول"); return; }
+      runSearch(t, a);
+    }
+  }
+
+  function renderState(container, opts){
+    container.innerHTML = "";
+    var s = el("div","state");
+    if(opts.spinner) s.appendChild(el("div","spinner"));
+    if(opts.icon) { var ic=el("div",null,opts.icon); ic.style.fontSize="40px"; s.appendChild(ic); }
+    if(opts.title) s.appendChild(el("h3",null,opts.title));
+    if(opts.text){ var p=el("p",null,opts.text); s.appendChild(p); }
+    if(opts.action){
+      var b = el("button","btn-primary"); b.innerHTML="<span>"+opts.action+"</span>";
+      b.addEventListener("click", opts.onAction); s.appendChild(b);
+    }
+    container.appendChild(s);
+  }
+
+  function runSearch(track, artist){
+    show("results");
+    $("#resultsTitle").textContent = track + (artist? " · "+artist : "");
+    var body = $("#resultsBody");
+    renderState(body, {spinner:true, title:"جاري البحث…", text:track+(artist?" — "+artist:"")});
+
+    var q = new URLSearchParams();
+    q.set("track_name", track);
+    if(artist) q.set("artist_name", artist);
+
+    fetch(API + "/search?" + q.toString())
+      .then(function(r){ if(!r.ok) throw new Error("http"); return r.json(); })
+      .then(function(list){
+        if(!Array.isArray(list) || list.length===0){
+          // retry with a looser q= query
+          return fetch(API + "/search?q=" + encodeURIComponent(track+" "+(artist||"")))
+            .then(function(r){return r.ok? r.json():[];});
+        }
+        return list;
+      })
+      .then(function(list){
+        if(!Array.isArray(list) || list.length===0){
+          renderState(body, {
+            icon:"🔍", title:"ما لقيت هذي الأغنية",
+            text:"جرّب تكتب الاسم بشكل ثاني، أو أضف اسم الفنان.",
+            action:"رجوع للبحث", onAction:function(){show("search");}
+          });
+          return;
+        }
+        renderResults(list);
+      })
+      .catch(function(){
+        renderState(body, {
+          icon:"⚠️", title:"ما قدرت أوصل لخدمة الكلمات",
+          text:"تأكد من الإنترنت وحاول مرة ثانية.",
+          action:"إعادة المحاولة", onAction:function(){runSearch(track, artist);}
+        });
+      });
+  }
+
+  function renderResults(list){
+    var body = $("#resultsBody");
+    body.innerHTML = "";
+    // dedupe by track+artist, prefer synced
+    var seen = {};
+    list.sort(function(a,b){ return (b.syncedLyrics?1:0)-(a.syncedLyrics?1:0); });
+    list.forEach(function(item){
+      if(!item.syncedLyrics && !item.plainLyrics) return;
+      var key = (item.trackName||"")+"|"+(item.artistName||"");
+      if(seen[key]) return; seen[key]=1;
+
+      var card = el("button","result");
+      card.setAttribute("dir", isArabic(item.trackName)? "rtl":"ltr");
+      var meta = el("div","meta");
+      meta.appendChild(el("div","track", item.trackName||"—"));
+      var sub = (item.artistName||"") + (item.albumName? " · "+item.albumName : "");
+      meta.appendChild(el("div","artist", sub));
+      card.appendChild(meta);
+
+      var badge = el("div","badge" + (item.syncedLyrics? " synced":""),
+                     item.syncedLyrics? "متزامن" : "نص");
+      card.appendChild(badge);
+
+      card.addEventListener("click", function(){ openLyrics(item); });
+      body.appendChild(card);
+    });
+    if(!body.children.length){
+      renderState(body, {icon:"🙁", title:"فيه نتائج بس بدون كلمات",
+        text:"جرّب صيغة ثانية للاسم.", action:"رجوع", onAction:function(){show("search");}});
+    }
+  }
+
+  $("#backFromResults").addEventListener("click", function(){ show("search"); });
+
+  // ---------- lyrics engine ----------
+  var LY = {
+    lines: [],        // [{time, text}]
+    plain: false,
+    active: -1,
+    playing: false,
+    baseT: 0,         // performance.now at start
+    offsetMs: 0,      // user nudge
+    startedAt: 0,     // song position ms when (re)started
+    raf: 0,
+    wrap: $("#lyricsWrap"),
+    lineEls: []
+  };
+
+  function parseLRC(text){
+    var out = [];
+    var lines = text.split(/\r?\n/);
+    var re = /\[(\d{1,2}):(\d{2})(?:[.:](\d{1,3}))?\]/g;
+    lines.forEach(function(ln){
+      var times = [], m; re.lastIndex = 0;
+      while((m = re.exec(ln))){
+        var mm = parseInt(m[1],10), ss = parseInt(m[2],10);
+        var fr = m[3]? parseInt((m[3]+"00").slice(0,3),10) : 0;
+        times.push(mm*60000 + ss*1000 + fr);
+      }
+      if(!times.length) return;
+      var txt = ln.replace(re,"").trim();
+      times.forEach(function(t){ out.push({time:t, text:txt}); });
+    });
+    out.sort(function(a,b){return a.time-b.time;});
+    return out;
+  }
+
+  function openLyrics(item){
+    show("lyrics");
+    $("#lyricTitle").textContent = item.trackName || "—";
+    $("#lyricArtist").textContent = item.artistName || "";
+    var rtl = isArabic((item.trackName||"")+(item.artistName||"")+(item.plainLyrics||item.syncedLyrics||""));
+    LY.wrap.setAttribute("dir", rtl? "rtl":"ltr");
+    stopClock();
+    LY.active = -1; LY.offsetMs = 0; LY.playing=false;
+
+    if(item.syncedLyrics){
+      LY.plain = false;
+      LY.lines = parseLRC(item.syncedLyrics);
+      if(!LY.lines.length){ renderPlain(item.plainLyrics || item.syncedLyrics); }
+      else renderSynced();
+    } else {
+      renderPlain(item.plainLyrics || "");
+    }
+    requestWakeLock();
+  }
+
+  function renderSynced(){
+    LY.plain = false;
+    LY.wrap.classList.remove("plain");
+    LY.wrap.innerHTML = "";
+    LY.lineEls = LY.lines.map(function(l, idx){
+      var p = el("p","line", l.text || "···");
+      p.addEventListener("click", function(){ seekToLine(idx); });
+      LY.wrap.appendChild(p);
+      return p;
+    });
+    $("#syncTip").textContent = "اضغط ابدأ مع بداية الأغنية · لو راحت الكلمات عن الصوت اضغط السطر الصحيح";
+    buildControls(true);
+    LY.wrap.scrollTop = 0;
+    setActive(-1);
+  }
+
+  function renderPlain(text){
+    LY.plain = true;
+    LY.wrap.classList.add("plain");
+    LY.wrap.innerHTML = "";
+    var t = (text||"").trim();
+    if(!t){
+      renderState(LY.wrap, {icon:"📝", title:"ما فيه كلمات لهذي النسخة"});
+      $("#syncTip").textContent=""; buildControls(false); return;
+    }
+    t.split(/\r?\n/).forEach(function(ln){
+      var p = el("p","line plainline", ln.trim()==="" ? " " : ln);
+      LY.wrap.appendChild(p);
+    });
+    $("#syncTip").textContent = "هذي النسخة نص بدون تزامن · فعّل السكرول التلقائي لو حاب";
+    buildControls(false);
+    LY.wrap.scrollTop = 0;
+  }
+
+  // ----- controls -----
+  var autoScroll = {on:false, raf:0, speed:22}; // px per second
+  function buildControls(synced){
+    var c = $("#controls"); c.innerHTML="";
+    if(synced){
+      var play = el("button","ctl play");
+      play.innerHTML = "<span id='playLbl'>▶ ابدأ</span>";
+      play.addEventListener("click", togglePlay);
+      var back = el("button","ctl"); back.innerHTML="−٢ث";
+      back.addEventListener("click", function(){ nudge(-2000); });
+      var fwd = el("button","ctl"); fwd.innerHTML="+٢ث";
+      fwd.addEventListener("click", function(){ nudge(2000); });
+      var restart = el("button","ctl"); restart.innerHTML="↺";
+      restart.setAttribute("aria-label","من البداية");
+      restart.addEventListener("click", restartSong);
+      c.appendChild(back); c.appendChild(play); c.appendChild(fwd); c.appendChild(restart);
+    } else {
+      var toggle = el("button","ctl play wide");
+      toggle.innerHTML = "<span id='asLbl'>▶ سكرول تلقائي</span>";
+      toggle.addEventListener("click", toggleAutoScroll);
+      var slower = el("button","ctl"); slower.textContent="أبطأ";
+      slower.addEventListener("click", function(){ autoScroll.speed=Math.max(8,autoScroll.speed-8); toast("السرعة: أبطأ"); });
+      var faster = el("button","ctl"); faster.textContent="أسرع";
+      faster.addEventListener("click", function(){ autoScroll.speed=Math.min(80,autoScroll.speed+8); toast("السرعة: أسرع"); });
+      c.appendChild(slower); c.appendChild(toggle); c.appendChild(faster);
+    }
+  }
+
+  // ----- synced clock -----
+  function currentPos(){ return LY.startedAt + (performance.now() - LY.baseT) + LY.offsetMs; }
+  function togglePlay(){
+    if(LY.playing){ pauseClock(); } else { startClock(); }
+  }
+  function startClock(){
+    LY.playing = true;
+    LY.baseT = performance.now();
+    var lbl = $("#playLbl"); if(lbl) lbl.textContent = "⏸ إيقاف";
+    tick();
+  }
+  function pauseClock(){
+    LY.startedAt = currentPos();
+    LY.playing = false;
+    cancelAnimationFrame(LY.raf);
+    var lbl = $("#playLbl"); if(lbl) lbl.textContent = "▶ ابدأ";
+  }
+  function stopClock(){ LY.playing=false; cancelAnimationFrame(LY.raf); }
+  function restartSong(){ LY.startedAt=0; LY.offsetMs=0; setActive(-1); if(LY.playing){ LY.baseT=performance.now(); } toast("من البداية"); }
+  function nudge(ms){
+    LY.offsetMs += ms;
+    toast((LY.offsetMs>=0?"+":"") + Math.round(LY.offsetMs/1000) + " ثانية");
+  }
+  function seekToLine(idx){
+    var l = LY.lines[idx]; if(!l) return;
+    LY.startedAt = l.time; LY.baseT = performance.now(); LY.offsetMs = 0;
+    setActive(idx); scrollToActive();
+    if(!LY.playing){ startClock(); }
+  }
+  function tick(){
+    if(!LY.playing) return;
+    var pos = currentPos();
+    var idx = -1;
+    for(var i=0;i<LY.lines.length;i++){ if(LY.lines[i].time <= pos) idx=i; else break; }
+    if(idx !== LY.active){ setActive(idx); scrollToActive(); }
+    LY.raf = requestAnimationFrame(tick);
+  }
+  function setActive(idx){
+    LY.active = idx;
+    LY.lineEls.forEach(function(e,i){
+      e.classList.remove("active","past","upcoming");
+      if(i<idx) e.classList.add("past");
+      else if(i===idx) e.classList.add("active");
+      else if(i===idx+1) e.classList.add("upcoming");
+    });
+  }
+  function scrollToActive(){
+    if(LY.active<0){ LY.wrap.scrollTo({top:0,behavior:"smooth"}); return; }
+    var e = LY.lineEls[LY.active]; if(!e) return;
+    var target = e.offsetTop - LY.wrap.clientHeight/2 + e.clientHeight/2;
+    LY.wrap.scrollTo({top:Math.max(0,target), behavior:"smooth"});
+  }
+
+  // ----- auto scroll (plain) -----
+  var asLast = 0;
+  function toggleAutoScroll(){
+    autoScroll.on = !autoScroll.on;
+    var lbl = $("#asLbl");
+    if(autoScroll.on){
+      if(lbl) lbl.textContent = "⏸ إيقاف السكرول";
+      asLast = performance.now();
+      asStep();
+    } else {
+      if(lbl) lbl.textContent = "▶ سكرول تلقائي";
+      cancelAnimationFrame(autoScroll.raf);
+    }
+  }
+  function asStep(){
+    if(!autoScroll.on) return;
+    var now = performance.now();
+    var dt = (now - asLast)/1000; asLast = now;
+    LY.wrap.scrollTop += autoScroll.speed * dt;
+    if(LY.wrap.scrollTop + LY.wrap.clientHeight >= LY.wrap.scrollHeight-2){
+      autoScroll.on=false; var lbl=$("#asLbl"); if(lbl) lbl.textContent="▶ سكرول تلقائي"; return;
+    }
+    autoScroll.raf = requestAnimationFrame(asStep);
+  }
+  // pause auto-scroll if user touches
+  LY.wrap.addEventListener("touchstart", function(){
+    if(autoScroll.on){ autoScroll.on=false; var lbl=$("#asLbl"); if(lbl) lbl.textContent="▶ سكرول تلقائي"; }
+  }, {passive:true});
+
+  // ----- font size -----
+  var sizePx = 34;
+  try{ var saved = parseInt(localStorage.getItem("lyricSize")||"",10); if(saved) sizePx = saved; }catch(e){}
+  document.documentElement.style.setProperty("--lyric-size", sizePx+"px");
+  function setSize(px){
+    sizePx = Math.max(22, Math.min(56, px));
+    document.documentElement.style.setProperty("--lyric-size", sizePx+"px");
+    try{ localStorage.setItem("lyricSize", sizePx); }catch(e){}
+  }
+  $("#sizeToggle").addEventListener("click", function(){ $("#sizebar").classList.toggle("show"); });
+  $("#sizeUp").addEventListener("click", function(){ setSize(sizePx+3); });
+  $("#sizeDown").addEventListener("click", function(){ setSize(sizePx-3); });
+  document.addEventListener("click", function(e){
+    if(!e.target.closest("#sizebar") && !e.target.closest("#sizeToggle")) $("#sizebar").classList.remove("show");
+  });
+
+  $("#backFromLyrics").addEventListener("click", function(){
+    stopClock(); autoScroll.on=false; releaseWakeLock(); show("results");
+  });
+
+  // ----- wake lock (keep screen on while driving) -----
+  var wakeLock = null;
+  function requestWakeLock(){
+    if(!("wakeLock" in navigator)) return;
+    navigator.wakeLock.request("screen").then(function(w){ wakeLock=w; }).catch(function(){});
+  }
+  function releaseWakeLock(){ if(wakeLock){ wakeLock.release().catch(function(){}); wakeLock=null; } }
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState==="visible" && screens.lyrics.classList.contains("active")) requestWakeLock();
+  });
+
+  // focus first field
+  setTimeout(function(){ try{$("#trackInput").focus();}catch(e){} }, 300);
+})();
+</script>
+</body>
+</html>

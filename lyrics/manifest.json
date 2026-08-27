@@ -1,0 +1,17 @@
+{
+  "name": "كلمات — عرض كلمات الأغاني",
+  "short_name": "كلمات",
+  "description": "اكتب اسم الأغنية أو الصق رابط يوتيوب واعرض الكلمات بخط كبير مع سكرول تلقائي.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/lyrics/",
+  "scope": "/lyrics/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0a0b",
+  "theme_color": "#0a0a0b",
+  "icons": [
+    { "src": "/favicon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}
